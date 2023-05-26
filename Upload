@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+
+const CustomerBoard = () => {
+  const [tasks, setTasks] = useState({
+    todo: [],
+    inProgress: [],
+    done: []
+  })
+  let [count,setCount] = useState(0)
+  
+  const increaseCounter = () =>{
+    setCount(count+1)
+    // Tasks Counter
+    console.log(count);
+  }
+  const decreaseCounter = () =>{
+    setCount(count-1)
+  }
+
+  const handleTaskAdd = (e, status) => {
+    e.preventDefault();
+    const taskText = e.target.task.value;
+    if (taskText.trim() === '') {
+      return;
+    }
+    else{
+        increaseCounter()
+        //Condition to check if the counter is empty or not
+    }
+
+    const newTask = {
+      id: new Date().getTime(),
+      text: taskText,
+
+    };
+
+    setTasks(prevTasks => ({
+      ...prevTasks,
+      [status]: [...prevTasks[status], newTask]
+    }));
+
+    e.target.reset();
+  };
+    
+
+  const handleTaskMove = (taskId, sourceStatus, targetStatus) => {
+    const taskToMove = tasks[sourceStatus].find(task => task.id === taskId);
+
+    if (taskToMove) {
+      setTasks(prevTasks => {
+        const updatedSourceTasks = prevTasks[sourceStatus].filter(task => task.id !== taskId);
+        const updatedTargetTasks = [...prevTasks[targetStatus], taskToMove];
+        
+        return {
+          ...prevTasks,
+          [sourceStatus]: updatedSourceTasks,
+          [targetStatus]: updatedTargetTasks
+        };
+      });
+    }
+  };
+
+  return (
+    <div>
+      <h1>Isure360 CustomerBoard</h1>
+
+      <div className="board">
+        <div className="column">
+            <div>
+                <h1>Total Tasks:{count}</h1>
+
+            </div>
+          <h2>Todo</h2>
+          <form onSubmit={(e) => handleTaskAdd(e, 'todo')}>
+            <input type="text" name="task" placeholder="Enter the Customer's Task" />
+            {/* <button onClick={increaseCounter}type="submit">Add Task</button>\  OLD COUNTER*/}
+            <button type="submit">Add Task</button>
+          </form>
+          <ul>
+            {tasks.todo.map(task => (
+              <li key={task.id}>
+                <h1 style={{border:2,borderBlockColor:'black'}}>
+                {task.text}
+                <button onClick={() => handleTaskMove(task.id, 'todo', 'inProgress')}>
+                   <h4>Move to Follow up</h4>
+                </button>
+                </h1>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="column">
+          <h2>Follow up</h2>
+          <form onSubmit={(e) => handleTaskAdd(e, 'inProgress')}>
+            <input type="text" name="task" placeholder="Enter a task" />
+            <button type="submit">Add Task</button>
+          </form>
+          <ul>
+            {tasks.inProgress.map(task => (
+              <li key={task.id}>
+                {task.text}
+                <button onClick={() => handleTaskMove(task.id, 'inProgress', 'done')}>
+                  Move to Done
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="column" style={{border:2,}} >
+          <h2>Done Tasks</h2>
+          <ul>
+            {tasks.done.map(task => (
+              <li key={task.id}>{task.text}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CustomerBoard;
